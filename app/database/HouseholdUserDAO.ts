@@ -69,7 +69,7 @@ export class HouseholdUserDAO
 
             //use Promisfy
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query("SELECT * FROM HOUSEHOLD_USERS WHERE ID = ?", household_id);
+            let result1 = await connection.query("SELECT * FROM HOUSEHOLD_USERS WHERE HOUSEHOLD_ID = ?", household_id);
             for(let x=0;x < result1.length;++x)
             {
                 householdusers.push(new HouseholdUser(result1[x].id, 

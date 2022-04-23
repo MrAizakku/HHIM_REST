@@ -48,25 +48,28 @@ app.get('/households/', function(req, res)
     });  
 })
 
-app.get('/households/:household', function(req, res)
+app.get('/household/', function(req, res)
 {
-    console.log('Inside GET /households for param ' + req.params.household);
-    let DAO = new HouseholdDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-    DAO.readById(req.params.household, function(result)
-    {
-        res.json(result);
-    });  
+    if(!req.body.id) {
+        res.status(400).json({"error": "ERR 400: Invalid household Information"});
+    } else {
+        console.log('Inside GET /households for param ' + req.body.id);
+        let DAO = new HouseholdDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+        DAO.readById(req.body.id, function(result)
+        {
+            res.json(result);
+        });  
+    }
 })
 
-app.post('/households', function(req, res)
+app.post('/household', function(req, res)
  {
-     console.log("Inside POST /households", req.body)
-     if(!req.body.name)
-     {
-         res.status(400).json({"error": "ERR 400: Invalid household Information"});
-     }
-     else
-     {
+    console.log("Inside POST /households", req.body)
+    if(!req.body.name || !req.body.street || !req.body.city || !req.body.state || !req.body.zip || req.body.state.length > 2) {
+        res.status(400).json({"error": "ERR 400: Invalid household Information"});
+    }
+    else
+    {
         let items = [];
         for(let x=0; x<req.body.items.length; ++x)
         {
@@ -83,17 +86,16 @@ app.post('/households', function(req, res)
     }
 });
 
-app.put('/households/:id', function(req, res)
+app.put('/household/', function(req, res)
 {
-    console.log("Inside PUT /households/" + req.params.id, req.body)
-    if(!req.body.name)
-    {
-        res.status(400).json({error: "ERR 400: Invalid Household Information"});
+    console.log("Inside PUT /households/", req.body)
+    if(!req.body.id || !req.body.name || !req.body.street || !req.body.city || !req.body.state || !req.body.zip || req.body.state.length > 2) {
+        res.status(400).json({"error": "ERR 400: Invalid household Information"});
     }
     else
     {
         let DAO = new HouseholdDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-        let update_household = new Household(req.params.id, req.body.name, req.body.street, req.body.city, req.body.state, req.body.zip, req.body.description, "", "", []);
+        let update_household = new Household(req.body.id, req.body.name, req.body.street, req.body.city, req.body.state, req.body.zip, req.body.description, "", "", []);
 
         DAO.update(update_household, function(new_HH)
         {
@@ -102,21 +104,25 @@ app.put('/households/:id', function(req, res)
     }
 });
 
-app.delete('/households/:id', function(req, res)
+app.delete('/household/', function(req, res)
 {
-    console.log("Inside DEL /households/" + req.params.id, req.body)
-    let DAO = new HouseholdDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-    DAO.delete(Number(req.params.id), function(result)
-    {
-        res.json(result);
-    });    
+    if(!req.body.id) {
+        res.status(400).json({"error": "ERR 400: Invalid household Information"});
+    } else {
+        console.log("Inside DEL /households/", req.body)
+        let DAO = new HouseholdDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+        DAO.delete(Number(req.body.id), function(result)
+        {
+            res.json(result);
+        });   
+    }
 });
 
 
  /************************
   *        ITEMS         *
   ************************/
- app.get('/items/', function(req, res)
+app.get('/items/', function(req, res)
  {
      console.log('Inside GET /items');
      let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
@@ -126,30 +132,38 @@ app.delete('/households/:id', function(req, res)
      });
 })
 
- app.get('/items/:item', function(req, res)
- {
-     console.log('Inside GET /items for param ' + req.params.item);
-     let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-     DAO.readById(req.params.item, function(items)
-     {
-         res.json(items);
-     });
+app.get('/item/', function(req, res)
+{
+    if(!req.body.id) {
+        res.status(400).json({"error": "ERR 400: Invalid item Information"});
+    } else {
+        console.log('Inside GET /item ', req.body.id);
+        let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+        DAO.readById(req.body.id, function(items)
+        {
+            res.json(items);
+        });
+    }
 })
 
- app.get('/items/household/:hhid', function(req, res)
+app.get('/items/household/', function(req, res)
  {
-     console.log('Inside GET /items for household ' + req.params.hhid);
-     let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-     DAO.readByHhid(req.params.hhid, function(item)
-     {
-         res.json(item);
-     });
+    if(!req.body.id) {
+        res.status(400).json({"error": "ERR 400: Invalid item Information"});
+    } else {
+        console.log('Inside GET /items/household/ ', req.body.id);
+        let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+        DAO.readByHhid(req.body.id, function(item)
+        {
+            res.json(item);
+        });
+    }
 })
 
- app.post('/items', function(req, res)
+app.post('/item', function(req, res)
  {
      console.log("Inside POST /items", req.body)
-     if(!req.body.name)
+     if(!req.body.name || !req.body.description || !req.body.quantity || !req.body.households_id)
      {
          res.status(400).json({"error": "ERR 400: Invalid Item Information"});
      }
@@ -164,17 +178,13 @@ app.delete('/households/:id', function(req, res)
      }
 });
 
-app.put('/items/:id', function(req, res)
+app.put('/item/', function(req, res)
 {
-    console.log("Inside PUT /items/" + req.params.id, req.body)
-    if(!req.body.name)
-    {
-        res.status(400).json({error: "ERR 400: Invalid Item Information"});
-    }
-    else
-    {
+    if(!req.body.id || !req.body.name || !req.body.description || !req.body.quantity) {
+        res.status(400).json({"error": "ERR 400: Invalid item Information"});
+    } else {
         let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-        let update_item = new Item(req.params.id, req.body.name, req.body.description, req.body.quantity, req.body.households_id, req.body.donation_flag, "", "");
+        let update_item = new Item(req.body.id, req.body.name, req.body.description, req.body.quantity, req.body.households_id, req.body.donation_flag, "", "");
 
         DAO.update(update_item, function(item)
         {
@@ -183,20 +193,24 @@ app.put('/items/:id', function(req, res)
     }
 });
 
- app.delete('/items/:id', function(req, res)
+app.delete('/item/', function(req, res)
  {
-     console.log("Inside DEL /items/" + req.params.id, req.body)
-     let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-     DAO.delete(Number(req.params.id), function(item)
-     {
-         res.json(item);
-     });    
- });
+    if(!req.body.id) {
+        res.status(400).json({"error": "ERR 400: Invalid item Information"});
+    } else {
+        console.log("Inside DEL /item/" , req.body)
+        let DAO = new ItemDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+        DAO.delete(Number(req.body.id), function(item)
+        {
+            res.json(item);
+        });    
+    }
+});
 
- /************************
-  *        USERS         *
-  ************************/
-  app.get('/authenticate/', function(req, res)
+/************************
+*        USERS         *
+************************/
+app.get('/authenticate/', function(req, res)
   {
     console.log("Inside AUTHENTICATE /authenticate/", req.body)
     
@@ -208,9 +222,9 @@ app.put('/items/:id', function(req, res)
             res.json(users);
         });
     }
- });
+});
 
-  app.get('/users/', function(req, res)
+app.get('/users/', function(req, res)
   {
       console.log('Inside GET /users readAll');
       let DAO = new UserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
@@ -218,35 +232,41 @@ app.put('/items/:id', function(req, res)
       {
           res.json(users);
       });
- });
+});
  
-  app.get('/user/', function(req, res)
+app.get('/user/', function(req, res)
   {
-    if(!req.body.id) { next(err); }
+    if(!req.body.id) { 
+        res.status(400).json({"error": "ERR 400: Invalid user Information"});
+     }
     console.log('Inside GET /user for ' + req.body.id);
     let DAO = new UserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
     DAO.readById(req.body.id, function(user)
     {
         res.json(user);
     });
- });
+});
  
-  app.get('/user/email', function(req, res)
+app.get('/user/email', function(req, res)
   {
-      console.log('Inside GET /user for ' + req.body.email);
-      if(!req.body.email) { next(err); }
-      let DAO = new UserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-      DAO.readByEmail(req.body.email, function(user)
-      {
-          res.json(user);
-      });
- });
+    console.log('Inside GET /user for ' + req.body.email);
+    if(!req.body.email) { 
+        res.status(400).json({"error": "ERR 400: Invalid user Information"});
+    }
+    let DAO = new UserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+    DAO.readByEmail(req.body.email, function(user)
+    {
+        res.json(user);
+    });
+});
  
-  app.post('/user', function(req, res)
-  {
+app.post('/user', function(req, res)
+{
     console.log("Inside POST /user", req.body)
     
-    if(!req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) { next(err); }
+    if(!req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) { 
+        res.status(400).json({"error": "ERR 400: Invalid user Information"});
+    }
     else
     { 
         let user = new User(-1, req.body.first_name, req.body.last_name, req.body.email, req.body.password, "", "");
@@ -256,13 +276,15 @@ app.put('/items/:id', function(req, res)
             res.json(new_user);
         });
     }
- });
+});
 
- app.put('/user/', function(req, res)
- {
+app.put('/user/', function(req, res)
+{
     console.log("Inside PUT /user/   " + req.body.id, req.body)
      
-    if(!req.body.id || !req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) { next(err); }
+    if(!req.body.id || !req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) { 
+        res.status(400).json({"error": "ERR 400: Invalid user Information"});
+    }
     else
     {
         let DAO = new UserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
@@ -272,83 +294,93 @@ app.put('/items/:id', function(req, res)
             res.json(user);
         });
     }
- });
+});
  
- app.delete('/user/', function(req, res)
- {
-    if(!req.body.id) { next(err); }
-     console.log("Inside DEL /user/" + req.body.id, req.body)
-     let DAO = new UserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-     DAO.delete(Number(req.body.id), function(user)
-     {
-         res.json(user);
-     });    
- });
+app.delete('/user/', function(req, res)
+{
+    if(!req.body.id) { 
+        res.status(400).json({"error": "ERR 400: Invalid user Information"});
+    }
+    console.log("Inside DEL /user/" + req.body.id, req.body)
+    let DAO = new UserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+    DAO.delete(Number(req.body.id), function(user)
+    {
+        res.json(user);
+    });    
+});
 
 /************************
  *   HOUSEHOLD USERS    *
  ************************/
-  app.get('/householdusers/', function(req, res)
+app.get('/householdusers/', function(req, res)
   {
-      console.log('Inside GET /householdusers readAll');
-      let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-      DAO.readAll(function(users)
-      {
-          res.json(users);
-      });
- });
+    console.log('Inside GET /householdusers readAll');
+    let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+    DAO.readAll(function(users)
+    {
+        res.json(users);
+    });
+});
  
-  app.get('/householduser/household', function(req, res)
+app.get('/householduser/household', function(req, res)
+{
+    if(!req.body.id) { 
+        res.status(400).json({"error": "ERR 400: Invalid householduser Information"});
+    }
+    console.log('Inside GET /householduser/household for ' + req.body.id);
+    let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+    DAO.readByHouseholdId(req.body.id, function(user)
+    {
+        res.json(user);
+    });
+});
+ 
+app.get('/householduser/user', function(req, res)
   {
-    if(!req.body.id) { next(err); }
-      console.log('Inside GET /householduser/household for ' + req.body.id);
-      let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-      DAO.readByHouseholdId(req.body.id, function(user)
-      {
-          res.json(user);
-      });
- });
+    if(!req.body.id) { 
+        res.status(400).json({"error": "ERR 400: Invalid householduser Information"});
+    }
+    console.log('Inside GET householduser/user for ' + req.body.id);
+    let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+    DAO.readByUserId(req.body.id, function(user)
+    {
+        res.json(user);
+    });
+});
  
-  app.get('/householduser/user', function(req, res)
+app.post('/householduser', function(req, res)
   {
-      if(!req.body.id) { next(err); }
-      console.log('Inside GET householduser/user for ' + req.body.id);
-      let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-      DAO.readByUserId(req.body.id, function(user)
-      {
-          res.json(user);
-      });
- });
+    console.log("Inside POST /householduser", req.body)
+    if(!req.body.user_id || !req.body.household_id ) { 
+        res.status(400).json({"error": "ERR 400: Invalid householduser Information"});
+    }
+    else
+    { 
+        let user = new HouseholdUser(-1, req.body.user_id, req.body.household_id, "", "");
+        let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
+        DAO.create(user, function(new_user)
+        {
+            res.json(new_user);
+        });
+    }
+});
  
-  app.post('/householduser', function(req, res)
-  {
-      console.log("Inside POST /householduser", req.body)
-      if(!req.body.user_id || !req.body.household_id ) { next(err); }
-      else
-      { 
-         let user = new HouseholdUser(-1, req.body.user_id, req.body.household_id, "", "");
-         let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
-         DAO.create(user, function(new_user)
-         {
-             res.json(new_user);
-         });
-      }
- });
- 
- app.delete('/householduser/', function(req, res)
- {
-     console.log("Inside DEL /householduser/   ", req.body)
-     if(!req.body.id) { next(err); }
-     else {
+app.delete('/householduser/', function(req, res)
+{
+    console.log("Inside DEL /householduser/   ", req.body)
+    if(!req.body.id) { 
+        res.status(400).json({"error": "ERR 400: Invalid householduser Information"});
+    }
+    else {
         let DAO = new HouseholdUserDAO(dbHost, dbPort, dbSchema, dbUsername, dbPassword);
         DAO.delete(Number(req.body.id), function(user)
         {
             res.json(user);
         });    
     }
- });
+});
 
- //  Error Handling
+//  Error Handling
  
 app.get('/error', (req, res) => {
     res.send("Custom error landing page.")
