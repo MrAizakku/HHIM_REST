@@ -15,13 +15,6 @@ const app = express();
 const port = 3009;
 app.use(bodyParser.json());
 
-//database config
-// const dbHost = "l6glqt8gsx37y4hs.cbetxkdyhwsb.us-east-1.rds.amazonaws.com"
-// const dbPort = "3306";
-// const dbSchema = "l45k3ed06hge7rsq"
-// const dbUsername = "zrq8s4xaf2pvof0k"
-// const dbPassword = "xc80ddjapuaj3w3b"
-
 const dbHost = "localhost"
 const dbPort = 3306;
 const dbSchema = "cst451"
