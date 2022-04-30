@@ -16,7 +16,7 @@ const port = 3009;
 app.use(bodyParser.json());
 
 const dbHost = "bv2rebwf6zzsv341.cbetxkdyhwsb.us-east-1.rds.amazonaws.com"
-const dbPort = process.env.PORT; //3306
+const dbPort = process.env.PORT; //3306 //
 const dbSchema = "gehz15dwj1cf6wky"
 const dbUsername = "eqz9ng3abq1exezg"
 const dbPassword = "ycaoufn1xwltoi6y"
