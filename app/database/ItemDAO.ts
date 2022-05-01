@@ -1,32 +1,18 @@
 //Object Model Dependencies
-import { Household } from "../models/Household";
 import { Item }      from "../models/Item";
 import { DTO }       from "../database/DTO";
-
-//MySQL Module Dependency
-import * as mysql from "mysql";
 
 //Util Module Dependency for Promisify
 import * as util from "util";
 
 export class ItemDAO 
 {
-    private host:string = "";
-    private port:number = 3306;
-    private username:string = "";
-    private password:string = "";
-    private schema:string = "";
     private pool;
 
-    constructor(host:string, port:number, schema:string, username:string, password:string) 
+
+    constructor(pool: any) 
     {
-        this.host = host;
-        this.port = port;
-        this.schema = schema;
-        this.username = username;
-        this.password = password;
-        this.pool = mysql.createPool({host: this.host, port: this.port, user: this.username, password: this.password, database: this.schema, connectionLimit: 10});
-        //console.log(this.pool);
+        this.pool = pool;
     }
     /************************
      *        ITEMS         *
