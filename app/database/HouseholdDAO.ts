@@ -57,6 +57,47 @@ export class HouseholdDAO
         })
     }
 
+    public readAllByUserId(id:string, callback: any) 
+    {
+        let households:Household[] = [];
+        this.pool.getConnection(async function(err:any, connection:any)
+        {
+            if (err) throw err;
+            //use Promisfy
+            connection.query = util.promisify(connection.query);
+            let result1 = await connection.query('SELECT HOUSEHOLDS.*, HOUSEHOLD_USERS.USER_ID FROM HOUSEHOLDS JOIN HOUSEHOLD_USERS ON HOUSEHOLD_USERS.HOUSEHOLD_ID = HOUSEHOLDS.ID WHERE HOUSEHOLD_USERS.USER_ID='+ id);
+            for(let x=0;x < result1.length;++x)
+            {
+                let HHID = result1[x].id;
+                let items:Item[] = [];
+                let result2 = await connection.query("SELECT * FROM ITEMS WHERE HOUSEHOLD_ID=?", [HHID]);
+                for(let y=0;y < result2.length;++y)
+                {
+                    items.push(new Item(result2[y].id, result2[y].name, result2[y].description, result2[y].quantity, result2[y].household_id, result2[y].donation_flag, result2[y].created_at, result2[y].updated_at));
+                }
+                households.push(new Household(result1[x].id, 
+                    result1[x].name,
+                    result1[x].street,
+                    result1[x].city,
+                    result1[x].state,
+                    result1[x].zip,
+                    result1[x].description,
+                    result1[x].created_at,
+                    result1[x].updated_at,
+                    items));
+            }
+            //callback to return results
+            let dto = new DTO(-1, "", -1, []);
+            if(households.length > 0) {
+                dto = new DTO(200, "Get Success", households.length, households);
+            } else {
+                dto = new DTO(404, "Get Success: No Results", households.length, []);
+            }
+            if (connection) connection.release();
+            callback(dto);
+        })
+    }
+    
     //Route::get('/households/{household})
     public readById(id:string, callback: any) 
     {

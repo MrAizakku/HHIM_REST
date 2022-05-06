@@ -50,6 +50,21 @@ app.get('/households/', function(req, res)
     });  
 })
 
+app.get('/households/:id', function(req, res)
+{
+    let id = req.params.id;
+    if (id != parseInt(id)) {
+        res.status(400).json({"error": "ERR 400: Invalid user Information"});
+    } else {
+        console.log('Inside GET /households for user param ' + id);
+        let DAO = new HouseholdDAO(dbPool);
+        DAO.readAllByUserId(id, function(result)
+        {
+            res.json(result);
+        });  
+    }
+})
+
 app.get('/household/:id', function(req, res)
 {
     let id = req.params.id;
@@ -396,7 +411,6 @@ app.delete('/householduser/:id', function(req, res)
 });
 
 //  Error Handling
- 
 app.get('/error', (req, res) => {
     res.send("Custom error landing page.")
 })
