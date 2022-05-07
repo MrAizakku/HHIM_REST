@@ -49,7 +49,6 @@ export class ItemDAO
         })
     }
 
-    //Route::get('/items/{item}', [ItemApiController::class, 'isolateById']);
     public readById(id:string, callback: any) 
     {
         let items:Item[] = [];

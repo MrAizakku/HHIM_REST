@@ -7,6 +7,7 @@ const { HouseholdDAO }      = require('./lib/app/database/HouseholdDAO');
 const { ItemDAO }           = require('./lib/app/database/ItemDAO');
 const { UserDAO }           = require('./lib/app/database/UserDAO');
 const { HouseholdUserDAO }  = require('./lib/app/database/HouseholdUserDAO');
+const { ReportDAO }         = require('./lib/app/database/ReportDAO')
 const bodyParser            = require('body-parser');
 const mysql                 = require('mysql');
 
@@ -408,6 +409,19 @@ app.delete('/householduser/:id', function(req, res)
             res.json(user);
         });    
     }
+});
+
+/************************
+ *         REPORT       *
+ ************************/
+ app.get('/report/', function(req, res)
+ {
+   console.log('Inside GET /report readAll');
+   let DAO = new ReportDAO(dbPool);
+   DAO.readByFlag(function(report)
+   {
+       res.json(report);
+   });
 });
 
 //  Error Handling
