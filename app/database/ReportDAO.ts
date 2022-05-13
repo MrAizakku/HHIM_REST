@@ -24,7 +24,7 @@ export class ReportDAO
 
             //use Promisfy
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query("SELECT  i.id, i.name, i.description, i.quantity, i.updated_at, h.state, u.email FROM items i JOIN households h ON h.id = i.household_id JOIN household_users hu on hu.household_id = h.id JOIN users u ON u.id = hu.user_id where donation_flag IS NOT NULL ORDER BY NAME");
+            let result1 = await connection.query("SELECT i.id, i.name, i.description, i.quantity, i.updated_at, h.state, (SELECT u.email FROM users u WHERE u.id = hu.user_id LIMIT 1) AS email FROM items i JOIN households h ON h.id = i.household_id JOIN household_users hu ON hu.household_id = h.id WHERE donation_flag IS NOT NULL ORDER BY NAME");
             for(let x=0;x < result1.length;++x)
             {
                 report.push(new Report(result1[x].id, 
