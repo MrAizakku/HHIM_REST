@@ -241,10 +241,14 @@ app.post('/authenticate/', async function(req, res)
         let DAO = new UserDAO(dbPool);
         DAO.readByEmail(req.body.email, function(user)
         {
-            bcrypt.compare(req.body.password, user.data[0].password, function(err, result) {
-                console.log('email: ' + req.body.email + ' password: ' + req.body.password + " hash: " + user.data[0].password);
-                res.json(result);
-            });
+            if(user.numberOfResults > 0) {
+                bcrypt.compare(req.body.password, user.data[0].password, function(err, result) {
+                    console.log('email: ' + req.body.email + ' password: ' + req.body.password + " hash: " + user.data[0].password);
+                    res.json(result);
+                });
+            } else {
+                res.json(false);
+            }
         });    
         // DAO.authenticate(req.body.email, req.body.password, function(users)
         // {
