@@ -10,6 +10,7 @@ const { HouseholdUserDAO }  = require('./lib/app/database/HouseholdUserDAO');
 const { ReportDAO }         = require('./lib/app/database/ReportDAO')
 const bodyParser            = require('body-parser');
 const mysql                 = require('mysql');
+const bcrypt                = require ('bcrypt');
 
 //create insatnce of Express app on Port 3000
 const express = require('express');
@@ -233,23 +234,27 @@ app.delete('/item/:id', function(req, res)
 /************************
 *        USERS         *
 ************************/
-app.post('/authenticate/', function(req, res)
+app.post('/authenticate/', async function(req, res)
   {
-    console.log("Inside AUTHENTICATE /authenticate/", req.body)
-    
     if(!req.body.email || !req.body.password) { next(err); }
     else {
         let DAO = new UserDAO(dbPool);
-        DAO.authenticate(req.body.email, req.body.password, function(users)
+        DAO.readByEmail(req.body.email, function(user)
         {
-            res.json(users);
-        });
+            bcrypt.compare(req.body.password, user.data[0].password, function(err, result) {
+                console.log('email: ' + req.body.email + ' password: ' + req.body.password + " hash: " + user.data[0].password);
+                res.json(result);
+            });
+        });    
+        // DAO.authenticate(req.body.email, req.body.password, function(users)
+        // {
+        //     res.json(users);
+        // });
     }
 });
 
 app.get('/users/', function(req, res)
   {
-      console.log('Inside GET /users readAll');
       let DAO = new UserDAO(dbPool);
       DAO.readAll(function(users)
       {
@@ -263,7 +268,6 @@ app.get('/user/:id', function(req, res)
     if (id != parseInt(id)) {
         res.status(400).json({"error": "ERR 400: Invalid user Information"});
      }
-    console.log('Inside GET /user for ' + id);
     let DAO = new UserDAO(dbPool);
     DAO.readById(id, function(user)
     {
@@ -273,8 +277,6 @@ app.get('/user/:id', function(req, res)
  
 app.get('/user/email/:id', function(req, res)
   {
-    console.log('Inside GET /user for ' + req.body.email);
-
     let id = req.params.id;
     if (!id) {   
         res.status(400).json({"error": "ERR 400: Invalid user Information"});
@@ -286,16 +288,16 @@ app.get('/user/email/:id', function(req, res)
     });
 });
  
-app.post('/user', function(req, res)
-{
-    console.log("Inside POST /user", req.body)
-    
+app.post('/user', async function(req, res)
+{    
     if(!req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) { 
         res.status(400).json({"error": "ERR 400: Invalid user Information"});
     }
     else
     { 
-        let user = new User(-1, req.body.first_name, req.body.last_name, req.body.email, req.body.password, "", "");
+        let salt = await bcrypt.genSalt(10);
+        let hash = await bcrypt.hash(req.body.password, salt);
+        let user = new User(-1, req.body.first_name, req.body.last_name, req.body.email, hash, "", "");
         let DAO = new UserDAO(dbPool);
         DAO.create(user, function(new_user)
         {
@@ -304,17 +306,17 @@ app.post('/user', function(req, res)
     }
 });
 
-app.put('/user/', function(req, res)
-{
-    console.log("Inside PUT /user/   " + req.body.id, req.body)
-     
+app.put('/user/', async function(req, res)
+{     
     if(!req.body.id || !req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) { 
         res.status(400).json({"error": "ERR 400: Invalid user Information"});
     }
     else
     {
+        let salt = await bcrypt.genSalt(10);
+        let hash = await bcrypt.hash(req.body.password, salt);
         let DAO = new UserDAO(dbPool);
-        let update_user = new User(req.body.id, req.body.first_name, req.body.last_name, req.body.email, req.body.password, "", "");
+        let update_user = new User(req.body.id, req.body.first_name, req.body.last_name, req.body.email, hash, "", "");
           DAO.update(update_user, function(user)
         {
             res.json(user);

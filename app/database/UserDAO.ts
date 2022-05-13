@@ -49,7 +49,7 @@ export class UserDAO
                                     result1[x].first_name,
                                     result1[x].last_name,
                                     result1[x].email,
-                                    "HIDDEN",
+                                    result1[x].password,
                                     result1[x].created_at,
                                     result1[x].updated_at));
             }
@@ -81,7 +81,7 @@ export class UserDAO
                                     result1[x].first_name,
                                     result1[x].last_name,
                                     result1[x].email,
-                                    "HIDDEN",
+                                    result1[x].password,
                                     result1[x].created_at,
                                     result1[x].updated_at));
             }
@@ -113,7 +113,7 @@ export class UserDAO
                                     result1[x].first_name,
                                     result1[x].last_name,
                                     result1[x].email,
-                                    "HIDDEN",
+                                    result1[x].password,
                                     result1[x].created_at,
                                     result1[x].updated_at));
             }
@@ -147,7 +147,7 @@ export class UserDAO
                                                                 result2[0].first_name,
                                                                 result2[0].last_name,
                                                                 result2[0].email,
-                                                                "HIDDEN",
+                                                                result2[0].password,
                                                                 result2[0].created_at,
                                                                 result2[0].updated_at));
             } else {
@@ -175,7 +175,7 @@ export class UserDAO
                                                             result2[0].first_name,
                                                             result2[0].last_name,
                                                             result2[0].email,
-                                                            "HIDDEN",                                                        
+                                                            result2[0].password,                                                   
                                                             result2[0].created_at,
                                                             result2[0].updated_at));
             } else {
@@ -204,7 +204,7 @@ export class UserDAO
                                                             result2[0].first_name,
                                                             result2[0].last_name,
                                                             result2[0].email,
-                                                            "HIDDEN",
+                                                            result2[0].password,  
                                                             result2[0].created_at,
                                                             result2[0].updated_at));
             } else {
